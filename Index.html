@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<base target="_top">
+<style>
+  :root{
+    --pink:#E0218A; --pink2:#ff4fa3; --teal:#15c2b8; --bg:#0e0e12; --card:#1a1a22;
+    --card2:#23232e; --line:#33333f; --txt:#f2f2f5; --mut:#9a9aa8; --ok:#27c07a; --bad:#ff5b5b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;-webkit-tap-highlight-color:transparent}
+  body::before{content:"";position:fixed;inset:0;z-index:-1;
+    background:
+      linear-gradient(180deg, rgba(14,14,18,.62), rgba(14,14,18,.88) 52%, rgba(14,14,18,.97)),
+      url('https://i.postimg.cc/3xPyh1Yc/navas.jpg') center top / cover no-repeat;}
+  .wrap{max-width:720px;margin:0 auto;padding:16px 14px 60px}
+  header{text-align:center;padding:10px 0 4px;text-shadow:0 2px 10px rgba(0,0,0,.7)}
+  .shapes{font-size:18px;letter-spacing:6px;color:var(--pink)}
+  h1{font-size:22px;margin:6px 0 2px}
+  .sub{color:var(--mut);font-size:13px}
+  .namebar{display:flex;gap:8px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin:14px 0}
+  .namebar label{font-size:12px;color:var(--mut);display:block;margin-bottom:4px}
+  .namebar input,.namebar select{width:100%;background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:11px;font-size:16px}
+  .namebar .col{flex:1}
+  .badge{font-size:11px;padding:3px 8px;border-radius:999px;font-weight:700}
+  .b-open{background:rgba(39,192,122,.15);color:var(--ok);border:1px solid rgba(39,192,122,.4)}
+  .b-closed{background:rgba(255,91,91,.12);color:var(--bad);border:1px solid rgba(255,91,91,.35)}
+  .b-done{background:rgba(224,33,138,.15);color:var(--pink2);border:1px solid rgba(224,33,138,.4)}
+  .block{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:12px 0;overflow:hidden}
+  .block.locked{opacity:.85}
+  .bh{display:flex;justify-content:space-between;align-items:center;padding:14px 14px;cursor:pointer;gap:8px}
+  .bh .left{display:flex;align-items:center;gap:10px}
+  .bnum{width:34px;height:34px;border-radius:9px;background:var(--pink);display:grid;place-items:center;font-weight:800;flex:none}
+  .bh h3{margin:0;font-size:15px}
+  .bh .dates{font-size:12px;color:var(--mut)}
+  .picked{font-size:12px;color:var(--pink2);margin-top:2px}
+  .body{display:none;border-top:1px solid var(--line);padding:12px 14px}
+  .block.exp .body{display:block}
+  .hint{font-size:12px;color:var(--mut);margin:2px 0 10px}
+  .grp{margin:10px 0 4px;font-size:11px;color:var(--teal);font-weight:700;letter-spacing:1px}
+  .match{display:flex;align-items:stretch;gap:8px;margin-bottom:8px}
+  .match .team{flex:1;min-width:0}
+  .vs{flex:none;width:30px;display:grid;place-items:center;color:var(--mut);font-weight:800;font-size:11px}
+  .team{display:flex;align-items:center;gap:7px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:14px;cursor:pointer;user-select:none}
+  .team .fl{font-size:18px}
+  .team.sel{border-color:var(--pink);background:rgba(224,33,138,.18);box-shadow:0 0 0 1px var(--pink) inset}
+  .team.used{opacity:.4;cursor:not-allowed}
+  .team.used .why{font-size:10px;color:var(--bad);margin-left:auto}
+  .team.dis{opacity:.45;cursor:not-allowed}
+  .actions{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .count{font-size:13px;color:var(--mut)}
+  button.save{background:var(--pink);color:#fff;border:0;border-radius:11px;padding:11px 18px;font-size:15px;font-weight:700;cursor:pointer}
+  button.save:disabled{background:#55313f;color:#bbb;cursor:not-allowed}
+  .msg{font-size:13px;margin-top:8px;min-height:16px}
+  .msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
+  .lockmsg{font-size:13px;color:var(--mut)}
+  .loggedbar{display:flex;justify-content:space-between;align-items:center;width:100%;gap:10px}
+  .who{font-size:15px}
+  .linkbtn{background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:9px;padding:7px 12px;font-size:13px;cursor:pointer;flex:none}
+  .loading{text-align:center;color:var(--mut);padding:40px 0}
+  .navbtns{display:flex;justify-content:center;margin:4px 0 2px}
+  .navbtn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:9px 16px;font-size:14px;font-weight:700;cursor:pointer}
+  .navbtn.on{background:var(--teal);border-color:var(--teal);color:#04201e}
+  .lb{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:10px 0;padding:14px}
+  .lb h3{margin:0 0 4px;font-size:16px}
+  .lb .lbsub{font-size:12px;color:var(--mut);margin-bottom:10px}
+  .lbrow{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:9px}
+  .lbrow+.lbrow{border-top:1px solid var(--line)}
+  .lbrow.me{background:rgba(224,33,138,.12)}
+  .lbpos{width:26px;text-align:center;font-weight:800;color:var(--mut);flex:none}
+  .lbname{flex:1;font-size:15px}
+  .lbpts{font-weight:800;font-size:16px;color:var(--teal)}
+  .lbpts small{font-weight:500;color:var(--mut);font-size:11px}
+  .lbfoot{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+  .lbfoot button{background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:9px;padding:6px 12px;font-size:12px;cursor:pointer}
+  footer{text-align:center;color:var(--mut);font-size:11px;margin-top:24px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="shapes">○ △ □</div>
+    <h1>Juego del Calamar — Mundial 2026</h1>
+    <div class="sub">Fase de grupos · Elige 2 equipos por bloque · No repitas</div>
+  </header>
+
+  <div class="namebar" id="authArea"></div>
+
+  <div class="navbtns">
+    <button id="btnLb" class="navbtn">🏆 Ver clasificación</button>
+  </div>
+  <div id="lb" class="lb" style="display:none"></div>
+
+  <div id="app"><div class="loading">Cargando…</div></div>
+
+  <footer>
+    🦑 Quien sume más victorias se lleva el bote · 10€ por cabeza<br>
+    Las elecciones se guardan automáticamente en la hoja del organizador.
+  </footer>
+</div>
+
+<script>
+/* ---------- MODO DEMO (solo para la vista previa local) ----------
+   Si no estamos dentro de Google Apps Script, simulamos el servidor
+   con datos de ejemplo guardados en el navegador. En el despliegue
+   real esto NO se usa: manda el Codigo.gs. */
+if (typeof google === "undefined" || !google.script || !google.script.run) {
+  var T={MEX:["México","🇲🇽","A"],RSA:["Sudáfrica","🇿🇦","A"],KOR:["Corea del Sur","🇰🇷","A"],CZE:["Chequia","🇨🇿","A"],
+  CAN:["Canadá","🇨🇦","B"],BIH:["Bosnia","🇧🇦","B"],QAT:["Catar","🇶🇦","B"],SUI:["Suiza","🇨🇭","B"],
+  BRA:["Brasil","🇧🇷","C"],MAR:["Marruecos","🇲🇦","C"],HAI:["Haití","🇭🇹","C"],SCO:["Escocia","🏴","C"],
+  USA:["EE. UU.","🇺🇸","D"],PAR:["Paraguay","🇵🇾","D"],AUS:["Australia","🇦🇺","D"],TUR:["Turquía","🇹🇷","D"],
+  GER:["Alemania","🇩🇪","E"],CUW:["Curazao","🇨🇼","E"],CIV:["Costa de Marfil","🇨🇮","E"],ECU:["Ecuador","🇪🇨","E"],
+  NED:["Países Bajos","🇳🇱","F"],JPN:["Japón","🇯🇵","F"],SWE:["Suecia","🇸🇪","F"],TUN:["Túnez","🇹🇳","F"],
+  BEL:["Bélgica","🇧🇪","G"],EGY:["Egipto","🇪🇬","G"],IRN:["Irán","🇮🇷","G"],NZE:["Nueva Zelanda","🇳🇿","G"],
+  ESP:["España","🇪🇸","H"],CPV:["Cabo Verde","🇨🇻","H"],KSA:["Arabia Saudí","🇸🇦","H"],URU:["Uruguay","🇺🇾","H"],
+  FRA:["Francia","🇫🇷","I"],SEN:["Senegal","🇸🇳","I"],NOR:["Noruega","🇳🇴","I"],IRQ:["Irak","🇮🇶","I"],
+  ARG:["Argentina","🇦🇷","J"],ALG:["Argelia","🇩🇿","J"],AUT:["Austria","🇦🇹","J"],JOR:["Jordania","🇯🇴","J"],
+  POR:["Portugal","🇵🇹","K"],COD:["R. D. Congo","🇨🇩","K"],UZB:["Uzbekistán","🇺🇿","K"],COL:["Colombia","🇨🇴","K"],
+  ENG:["Inglaterra","🏴","L"],CRO:["Croacia","🇭🇷","L"],GHA:["Ghana","🇬🇭","L"],PAN:["Panamá","🇵🇦","L"]};
+  var teams={}; for(var k in T) teams[k]={n:T[k][0],f:T[k][1],g:T[k][2]};
+  var B={1:["MEX","RSA","KOR","CZE","CAN","BIH","QAT","SUI","BRA","MAR","HAI","SCO","USA","PAR","AUS","TUR","GER","CUW","NED","JPN"],
+  2:["CIV","ECU","SWE","TUN","BEL","EGY","IRN","NZE","ESP","CPV","KSA","URU","FRA","SEN","NOR","IRQ","ARG","ALG","AUT","JOR","POR","COD","UZB","COL","ENG","CRO","GHA","PAN"],
+  3:["MEX","RSA","KOR","CZE","CAN","BIH","QAT","SUI","BRA","MAR","HAI","SCO","USA","PAR","AUS","TUR","GER","CUW","CIV","ECU","NED","JPN","SWE","TUN"],
+  4:["BEL","EGY","IRN","NZE","ESP","CPV","KSA","URU","FRA","SEN","NOR","IRQ","ARG","ALG","AUT","JOR","POR","COD","UZB","COL","ENG","CRO","GHA","PAN"],
+  5:["MEX","RSA","KOR","CZE","CAN","BIH","QAT","SUI","BRA","MAR","HAI","SCO","USA","PAR","AUS","TUR","GER","CUW","CIV","ECU","NED","JPN","SWE","TUN"],
+  6:["BEL","EGY","IRN","NZE","ESP","CPV","KSA","URU","FRA","SEN","NOR","IRQ","ARG","ALG","AUT","JOR","POR","COD","UZB","COL","ENG","CRO","GHA","PAN"]};
+  var fechas={1:"11–14 jun",2:"15–18 jun",3:"19–22 jun",4:"23–24 jun",5:"25–26 jun",6:"27–28 jun"};
+  var PART={
+    1:[["MEX","RSA"],["KOR","CZE"],["CAN","BIH"],["USA","PAR"],["QAT","SUI"],["BRA","MAR"],["HAI","SCO"],["AUS","TUR"],["GER","CUW"],["NED","JPN"]],
+    2:[["CIV","ECU"],["SWE","TUN"],["ESP","CPV"],["BEL","EGY"],["KSA","URU"],["IRN","NZE"],["FRA","SEN"],["IRQ","NOR"],["ARG","ALG"],["AUT","JOR"],["POR","COD"],["ENG","CRO"],["GHA","PAN"],["UZB","COL"],["RSA","CZE"],["BIH","SUI"]],
+    3:[["CAN","QAT"],["MEX","KOR"],["USA","AUS"],["SCO","MAR"],["BRA","HAI"],["TUR","PAR"],["NED","SWE"],["GER","CIV"],["ECU","CUW"],["TUN","JPN"],["ESP","KSA"],["BEL","IRN"],["URU","CPV"],["NZE","EGY"],["ARG","AUT"],["FRA","IRQ"]],
+    4:[["NOR","SEN"],["JOR","ALG"],["POR","UZB"],["ENG","GHA"],["PAN","CRO"],["COL","COD"],["BIH","QAT"],["SUI","CAN"]],
+    5:[["SCO","BRA"],["MAR","HAI"],["RSA","KOR"],["CZE","MEX"],["ECU","GER"],["CUW","CIV"],["JPN","SWE"],["TUN","NED"],["TUR","USA"],["PAR","AUS"],["SEN","IRQ"],["NOR","FRA"]],
+    6:[["URU","ESP"],["CPV","KSA"],["NZE","BEL"],["EGY","IRN"],["CRO","GHA"],["PAN","ENG"],["COL","POR"],["COD","UZB"],["JOR","ARG"],["ALG","AUT"]]
+  };
+  function _pins(){return JSON.parse(localStorage.getItem("jc_demo_pins")||"{}");}
+  function _pinOk(nombre,pin){var k=(nombre||"").toLowerCase().trim();return _pins()[k]===String(pin);}
+  function run(){return {withSuccessHandler:function(s){this._s=s;return this;},withFailureHandler:function(){return this;},
+    getConfig:function(){var bl={};for(var b=1;b<=6;b++)bl[b]={fechas:fechas[b],equipos:PART[b].reduce(function(a,p){return a.concat(p);},[]),partidos:PART[b],limite:"",abierto:true};
+      this._s({teams:teams,bloques:bl,jugadores:["Arias","Miguel Jaime","Alvaro R","Sergio","Miguel Cruz","Rafa Galadi","Motilla","Juan Merino","Pablo Iglesias","Andres","Fran Segura","Josema Ropero","Iosu","Filippo","Edu","Carlos","Juanma"],ahora:new Date().toISOString()});},
+    login:function(nombre,pin){var P=_pins();var k=(nombre||"").toLowerCase().trim();
+      if(!/^\d{4,8}$/.test(pin||"")){this._s({ok:false,error:"El PIN debe tener entre 4 y 8 dígitos."});return;}
+      if(!P[k]){P[k]=String(pin);localStorage.setItem("jc_demo_pins",JSON.stringify(P));this._s({ok:true,nuevo:true});return;}
+      this._s(P[k]===String(pin)?{ok:true,nuevo:false}:{ok:false,error:"PIN incorrecto para "+nombre+"."});},
+    getDatos:function(nombre,pin){if(!_pinOk(nombre,pin)){this._s([]);return;}
+      var d=JSON.parse(localStorage.getItem("jc_demo")||"[]");var k=(nombre||"").toLowerCase().trim();
+      this._s(d.filter(function(r){return r.jugador.toLowerCase()===k;}));},
+    guardar:function(nombre,pin,bloque,eq){if(!_pinOk(nombre,pin)){this._s({ok:false,error:"Sesión no válida."});return;}
+      var d=JSON.parse(localStorage.getItem("jc_demo")||"[]");var k=(nombre||"").toLowerCase().trim();
+      d=d.filter(function(r){return !(r.jugador.toLowerCase()===k&&Number(r.bloque)===Number(bloque));});
+      d.push({jugador:nombre,bloque:Number(bloque),equipos:eq.slice(),fecha:new Date().toISOString()});
+      localStorage.setItem("jc_demo",JSON.stringify(d)); this._s({ok:true});},
+    getClasificacion:function(){
+      var d=JSON.parse(localStorage.getItem("jc_demo")||"[]");
+      var R=JSON.parse(localStorage.getItem("jc_demo_results")||"{}"); // {"1|MEX":true,...}
+      var byName={};
+      d.forEach(function(r){ var n=r.jugador; if(!byName[n])byName[n]={jugador:n,puntos:0,elecciones:0};
+        r.equipos.forEach(function(c){ byName[n].elecciones++; if(R[r.bloque+"|"+c]) byName[n].puntos++; }); });
+      var arr=Object.keys(byName).map(function(k){return byName[k];});
+      arr.sort(function(a,b){return (b.puntos-a.puntos)||a.jugador.toLowerCase().localeCompare(b.jugador.toLowerCase());});
+      this._s(arr);}
+  };}
+  window.google={script:{run:run()}};
+  Object.defineProperty(window.google.script,"run",{get:function(){return run();}});
+}
+/* ---------- fin modo demo ---------- */
+
+var CFG=null, DATOS=[], NOMBRE="", PIN="", LOGGED=false, SEL={}, EXP={}; // SEL[bloque]=[cod,cod]; EXP[bloque]=abierto
+
+function $(s,el){return (el||document).querySelector(s);}
+function ce(t,c){var e=document.createElement(t); if(c)e.className=c; return e;}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+window.onload=function(){
+  google.script.run.withSuccessHandler(function(cfg){
+    CFG=cfg;
+    NOMBRE = localStorage.getItem("jc_nombre") || "";
+    PIN = localStorage.getItem("jc_pin") || "";
+    if(NOMBRE && PIN){ // intentar entrar automáticamente con lo guardado
+      google.script.run.withSuccessHandler(function(res){
+        if(res && res.ok){ LOGGED=true; montarAuth(); cargarDatos(); }
+        else { PIN=""; localStorage.removeItem("jc_pin"); montarAuth(); render(); }
+      }).withFailureHandler(function(){ montarAuth(); render(); }).login(NOMBRE,PIN);
+    } else { montarAuth(); render(); }
+  }).withFailureHandler(err).getConfig();
+};
+
+function montarAuth(){
+  var box=$("#authArea"); box.innerHTML="";
+  if(LOGGED){
+    box.innerHTML='<div class="loggedbar"><div class="who">👤 <b>'+esc(NOMBRE)+'</b></div></div>';
+    var b=ce("button","linkbtn"); b.textContent="Cambiar de jugador"; b.onclick=logout;
+    box.querySelector(".loggedbar").appendChild(b);
+    return;
+  }
+  var nameCtrl;
+  if(CFG.jugadores && CFG.jugadores.length){
+    nameCtrl='<select id="lgName"><option value="">— elige tu nombre —</option>'+
+      CFG.jugadores.map(function(j){return '<option'+(j===NOMBRE?' selected':'')+'>'+esc(j)+'</option>';}).join('')+'</select>';
+  } else {
+    nameCtrl='<input id="lgName" type="text" placeholder="Tu nombre" value="'+esc(NOMBRE)+'">';
+  }
+  box.innerHTML=
+    '<div class="col">'+
+      '<label>Tu nombre</label>'+nameCtrl+
+      '<label style="margin-top:10px">Tu PIN secreto (4–8 dígitos)</label>'+
+      '<input id="lgPin" type="password" inputmode="numeric" autocomplete="off" placeholder="••••">'+
+      '<div class="hint" style="margin-top:6px">La 1ª vez creas tu PIN; las siguientes entras con él. No se lo des a nadie.</div>'+
+      '<button class="save" id="lgBtn" style="margin-top:10px">Entrar</button>'+
+      '<div class="msg" id="loginmsg"></div>'+
+    '</div>';
+  $("#lgBtn").onclick=function(){ hacerLogin($("#lgName").value.trim(), $("#lgPin").value.trim()); };
+  $("#lgPin").addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); $("#lgBtn").click(); } });
+}
+
+function hacerLogin(nombre,pin){
+  var msg=$("#loginmsg"); msg.className="msg"; msg.textContent="";
+  if(!nombre){ msg.className="msg bad"; msg.textContent="Elige tu nombre."; return; }
+  if(!/^\d{4,8}$/.test(pin)){ msg.className="msg bad"; msg.textContent="El PIN debe tener entre 4 y 8 dígitos."; return; }
+  var btn=$("#lgBtn"); btn.disabled=true; btn.textContent="Entrando…";
+  google.script.run.withSuccessHandler(function(res){
+    if(res && res.ok){
+      NOMBRE=nombre; PIN=pin; LOGGED=true; SEL={};
+      localStorage.setItem("jc_nombre",NOMBRE); localStorage.setItem("jc_pin",PIN);
+      montarAuth(); cargarDatos();
+    } else {
+      btn.disabled=false; btn.textContent="Entrar";
+      msg.className="msg bad"; msg.textContent="⚠️ "+((res&&res.error)||"No se pudo entrar.");
+    }
+  }).withFailureHandler(function(){
+    btn.disabled=false; btn.textContent="Entrar";
+    msg.className="msg bad"; msg.textContent="Error de conexión, reintenta.";
+  }).login(nombre,pin);
+}
+
+function logout(){
+  NOMBRE=NOMBRE; PIN=""; LOGGED=false; DATOS=[]; SEL={};
+  localStorage.removeItem("jc_pin");
+  montarAuth(); render();
+}
+
+function cargarDatos(){
+  if(!LOGGED){ DATOS=[]; render(); return; }
+  google.script.run.withSuccessHandler(function(d){ DATOS=d||[]; render(); }).withFailureHandler(err).getDatos(NOMBRE,PIN);
+}
+
+function misSelecciones(){ // de la hoja, para mi nombre
+  var m={};
+  if(!NOMBRE) return m;
+  DATOS.forEach(function(r){
+    if(r.jugador.toLowerCase()===NOMBRE.toLowerCase()) m[r.bloque]=r.equipos.slice();
+  });
+  return m;
+}
+function equiposUsadosOtrosBloques(bloque){
+  var usados={}; if(!NOMBRE) return usados;
+  DATOS.forEach(function(r){
+    if(r.jugador.toLowerCase()!==NOMBRE.toLowerCase()) return;
+    if(Number(r.bloque)===Number(bloque)) return;
+    r.equipos.forEach(function(c){ usados[c]=r.bloque; });
+  });
+  return usados;
+}
+
+function render(){
+  var app=$("#app"); app.innerHTML="";
+  if(!LOGGED){ app.innerHTML='<div class="loading">🔒 Identifícate arriba con tu nombre y tu PIN para ver tus bloques.</div>'; return; }
+  var guardadas=misSelecciones();
+
+  for(var b=1;b<=6;b++){
+    (function(b){
+      var info=CFG.bloques[b];
+      var bl=ce("div","block"+(info.abierto?"":" locked"));
+      bl.id="bl"+b;
+
+      // cabecera
+      var bh=ce("div","bh");
+      var left=ce("div","left");
+      var num=ce("div","bnum"); num.textContent=b;
+      var t=ce("div");
+      var h=ce("h3"); h.textContent="Bloque "+b;
+      var d=ce("div","dates"); d.textContent=info.fechas;
+      t.appendChild(h); t.appendChild(d);
+      var yo=guardadas[b];
+      if(yo){ var p=ce("div","picked"); p.textContent="✔ "+nom(yo[0])+" · "+nom(yo[1]); t.appendChild(p); }
+      left.appendChild(num); left.appendChild(t);
+
+      var badge=ce("span","badge "+(yo?"b-done":(info.abierto?"b-open":"b-closed")));
+      badge.textContent = yo?"Enviado":(info.abierto?"Abierto":"Cerrado");
+      bh.appendChild(left); bh.appendChild(badge);
+      bh.onclick=function(){ EXP[b]=!EXP[b]; bl.classList.toggle("exp", EXP[b]); };
+      bl.appendChild(bh);
+
+      // cuerpo
+      var body=ce("div","body");
+      if(!info.abierto){
+        var lk=ce("div","lockmsg");
+        lk.textContent = yo ? ("Bloque cerrado. Tu elección quedó: "+nom(yo[0])+" y "+nom(yo[1])+".")
+                            : "⏰ Bloque cerrado. No enviaste equipos a tiempo: no puntúas en este bloque.";
+        body.appendChild(lk);
+      } else {
+        var hint=ce("div","hint"); hint.textContent="Elige 2 equipos. Los que aparecen en rojo ya los usaste en otro bloque.";
+        body.appendChild(hint);
+
+        if(!SEL[b]) SEL[b]= yo? yo.slice() : [];
+        var usados=equiposUsadosOtrosBloques(b);
+
+        function chip(c){
+          var team=ce("div","team");
+          var sel=SEL[b].indexOf(c)>=0;
+          if(usados[c]){ team.className+=" used"; }
+          else if(sel){ team.className+=" sel"; }
+          else if(SEL[b].length>=2){ team.className+=" dis"; }
+          team.innerHTML='<span class="fl">'+CFG.teams[c].f+'</span><span>'+CFG.teams[c].n+'</span>';
+          if(usados[c]){ var wy=ce("span","why"); wy.textContent="Bloque "+usados[c]; team.appendChild(wy); }
+          team.onclick=function(){
+            if(usados[c]) return;
+            var i=SEL[b].indexOf(c);
+            if(i>=0) SEL[b].splice(i,1);
+            else { if(SEL[b].length>=2) return; SEL[b].push(c); }
+            render();
+          };
+          return team;
+        }
+        (info.partidos||[]).forEach(function(par){
+          var m=ce("div","match");
+          m.appendChild(chip(par[0]));
+          var vs=ce("div","vs"); vs.textContent="VS"; m.appendChild(vs);
+          m.appendChild(chip(par[1]));
+          body.appendChild(m);
+        });
+
+        var act=ce("div","actions");
+        var cnt=ce("div","count"); cnt.textContent=SEL[b].length+"/2 elegidos";
+        var btn=ce("button","save"); btn.textContent="Guardar bloque "+b;
+        btn.disabled = (SEL[b].length!==2);
+        btn.onclick=function(){ guardarBloque(b,btn); };
+        act.appendChild(btn); act.appendChild(cnt);
+        body.appendChild(act);
+        var msg=ce("div","msg"); msg.id="msg"+b; body.appendChild(msg);
+      }
+      bl.appendChild(body);
+      // mantener abierto si lo estaba
+      if(EXP[b]) bl.classList.add("exp");
+      app.appendChild(bl);
+    })(b);
+  }
+}
+
+function guardarBloque(b,btn){
+  var msg=$("#msg"+b); msg.className="msg"; msg.textContent="";
+  btn.disabled=true; btn.textContent="Guardando…";
+  EXP[b]=true; // mantener el bloque abierto tras guardar
+  google.script.run.withSuccessHandler(function(res){
+    if(res.ok){
+      msg.className="msg ok"; msg.textContent="✅ Guardado. ¡Suerte!";
+      cargarDatos();
+    } else {
+      msg.className="msg bad"; msg.textContent="⚠️ "+res.error;
+      btn.disabled=false; btn.textContent="Guardar bloque "+b;
+    }
+  }).withFailureHandler(function(e){
+    msg.className="msg bad"; msg.textContent="Error de conexión, reintenta.";
+    btn.disabled=false; btn.textContent="Guardar bloque "+b;
+  }).guardar(NOMBRE, PIN, b, SEL[b]);
+}
+
+function nom(c){ return CFG.teams[c] ? (CFG.teams[c].f+" "+CFG.teams[c].n) : c; }
+function err(e){ $("#app").innerHTML='<div class="loading">Error cargando: '+(e&&e.message?e.message:e)+'</div>'; }
+
+// ---------- CLASIFICACIÓN ----------
+var LB_OPEN=false;
+$("#btnLb").onclick=function(){
+  LB_OPEN=!LB_OPEN;
+  $("#btnLb").classList.toggle("on",LB_OPEN);
+  $("#btnLb").textContent = LB_OPEN ? "🏆 Ocultar clasificación" : "🏆 Ver clasificación";
+  var lb=$("#lb");
+  if(!LB_OPEN){ lb.style.display="none"; return; }
+  lb.style.display="block";
+  cargarClasificacion();
+};
+function cargarClasificacion(){
+  var lb=$("#lb"); lb.innerHTML='<div class="loading">Calculando…</div>';
+  google.script.run.withSuccessHandler(pintarClasificacion)
+    .withFailureHandler(function(){ lb.innerHTML='<div class="loading">No se pudo cargar la clasificación.</div>'; })
+    .getClasificacion();
+}
+function pintarClasificacion(rows){
+  var lb=$("#lb"); rows=rows||[];
+  var html='<h3>🏆 Clasificación</h3>'+
+    '<div class="lbsub">1 punto por cada equipo tuyo que gana su partido · empate o derrota = 0.</div>';
+  if(!rows.length){
+    html+='<div class="lbsub">Aún no hay jugadores con elecciones.</div>';
+  } else {
+    var pos=0, prev=null, shown=0;
+    rows.forEach(function(r){
+      shown++;
+      if(prev===null || r.puntos!==prev){ pos=shown; prev=r.puntos; } // empates comparten puesto
+      var medalla = pos===1?"🥇":pos===2?"🥈":pos===3?"🥉":pos;
+      var esYo = NOMBRE && r.jugador.toLowerCase()===NOMBRE.toLowerCase();
+      html+='<div class="lbrow'+(esYo?' me':'')+'">'+
+        '<div class="lbpos">'+medalla+'</div>'+
+        '<div class="lbname">'+esc(r.jugador)+(esYo?' <small style="color:var(--pink2)">(tú)</small>':'')+'</div>'+
+        '<div class="lbpts">'+r.puntos+' <small>pts</small></div>'+
+      '</div>';
+    });
+  }
+  html+='<div class="lbfoot"><span class="lbsub" style="margin:0">Se actualiza cuando el organizador marca los ganadores.</span>'+
+        '<button id="lbRef">Actualizar</button></div>';
+  lb.innerHTML=html;
+  $("#lbRef").onclick=cargarClasificacion;
+}
+</script>
+</body>
+</html>
