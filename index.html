@@ -378,6 +378,9 @@ input::placeholder{color:var(--mut)}
         <div id="leagues-list"></div>
       </div>
 
+      <!-- PICKS TAB -->
+      <div id="tab-picks" class="hidden"></div>
+
       <!-- GLOBAL TAB -->
       <div id="tab-global" class="hidden">
         <div class="global-hdr">
@@ -484,7 +487,10 @@ input::placeholder{color:var(--mut)}
     <!-- Bottom Nav -->
     <div class="bottomnav">
       <button class="bntab on" id="bntab-leagues" onclick="switchHomeTab('leagues')">
-        <span class="ico">🏆</span>Mis Ligas
+        <span class="ico">🏆</span>Ligas
+      </button>
+      <button class="bntab" id="bntab-picks" onclick="switchHomeTab('picks')">
+        <span class="ico">⚽</span>Mis Picks
       </button>
       <button class="bntab" id="bntab-global" onclick="switchHomeTab('global')">
         <span class="ico">🌍</span>Global
@@ -842,7 +848,12 @@ function switchLeagueTab(tab){
   document.getElementById('subtab-ranking').classList.toggle('hidden',tab!=='ranking');
   document.getElementById('subtab-picks').classList.toggle('hidden',tab!=='picks');
   if(tab==='ranking')renderLeagueRanking();
-  else renderPicks();
+  else{
+    // Limpiar picks del home para evitar IDs duplicados en el DOM
+    document.getElementById('tab-picks').innerHTML='';
+    expandedBlocks={};
+    renderPicks('subtab-picks');
+  }
 }
 
 // ── LEADERBOARD ──
@@ -900,8 +911,8 @@ async function loadGlobalLeaderboard(){
 }
 
 // ── PICKS ──
-function renderPicks(){
-  const el=document.getElementById('subtab-picks');
+function renderPicks(containerId){
+  const el=document.getElementById(containerId||'subtab-picks');
   el.innerHTML='';
   for(let b=1;b<=6;b++){
     const abierto=Date.now()<new Date(FECHAS_LIMITE[b]).getTime();
@@ -997,11 +1008,17 @@ async function doSaveBlock(b,btn){
 // ── HOME TABS ──
 function switchHomeTab(tab){
   currentHomeTab=tab;
-  ['leagues','global','rules'].forEach(t=>{
+  ['leagues','picks','global','rules'].forEach(t=>{
     document.getElementById('bntab-'+t).classList.toggle('on',t===tab);
     document.getElementById('tab-'+t).classList.toggle('hidden',t!==tab);
   });
   if(tab==='global')loadGlobalLeaderboard();
+  if(tab==='picks'){
+    // Limpiar picks de liga para evitar IDs duplicados en el DOM
+    document.getElementById('subtab-picks').innerHTML='';
+    expandedBlocks={};
+    renderPicks('tab-picks');
+  }
 }
 
 // ── CREATE MODAL ──
