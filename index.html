@@ -3,27 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0a">
 <title>🦑 Juego del Calamar — Mundial 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ===== TOKENS ===== */
 :root {
-  --bg:#07070A; --bg2:#0D0D14; --card:#111118; --card2:#181820; --line:#26263A;
-  --txt:#F2F2FF; --txt2:#9898B8; --mut:#505068;
-  --gold:#C9A425; --gold2:#E8C640;
-  --pink:#E52020; --pink2:#FF4444;   /* WC Rojo como color primario */
-  --purple:#7B2FFF; --purple2:#A355FF;
-  --lime:#95C11F; --lime2:#B8DC30;
-  --green:#22C97A; --red:#E52020; --teal:#15C2B8;
-  --grad:#E52020;
+  --bg:#0a0a0a; --bg2:#0f0f0f; --card:#111111; --card2:#1a1a1a; --line:#2a2a2a;
+  --txt:#f2f2f2; --txt2:#aaaaaa; --mut:#666666;
+  --gold:#F5C800; --gold2:#FFD700;
+  --pink:#C8001D; --pink2:#E85A00;   /* FIFA rojo y naranja oficiales */
+  --purple:#5B2D8E; --purple2:#7B4DBE;  /* FIFA morado oficial */
+  --lime:#009A44; --lime2:#00C455;     /* FIFA verde oficial */
+  --green:#009A44; --red:#C8001D; --teal:#006EB5;  /* FIFA azul oficial */
+  --grad:#C8001D;
   --r8:8px; --r12:12px; --r16:16px; --r20:20px;
 }
 
 /* ===== RESET ===== */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+body{background:var(--bg);color:var(--txt);font-family:'Barlow','Inter',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
 
 /* ===== BACKGROUND ===== */
 body::before{
@@ -36,10 +38,10 @@ body::before{
 body::after{
   content:"";position:fixed;inset:0;z-index:-1;
   background:
-    radial-gradient(ellipse 65% 50% at 5% 5%,rgba(123,47,255,.22) 0%,transparent 50%),
-    radial-gradient(ellipse 55% 45% at 95% 90%,rgba(229,32,32,.18) 0%,transparent 50%),
-    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(149,193,31,.07) 0%,transparent 65%),
-    linear-gradient(180deg,#07070A 0%,#0D0D14 100%);
+    radial-gradient(ellipse 65% 50% at 5% 5%,rgba(91,45,142,.20) 0%,transparent 50%),
+    radial-gradient(ellipse 55% 45% at 95% 90%,rgba(200,0,29,.15) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(0,154,68,.07) 0%,transparent 65%),
+    linear-gradient(180deg,#0a0a0a 0%,#0f0f0f 100%);
 }
 
 /* ===== LAYOUT ===== */
@@ -148,6 +150,7 @@ input::placeholder{color:var(--mut)}
 
 /* ===== LEAGUE DETAIL ===== */
 .league-topbar{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;background:rgba(6,8,16,.88);backdrop-filter:blur(16px)}
+.league-topbar::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#C8001D 0%,#E85A00 17%,#F5C800 34%,#009A44 51%,#006EB5 68%,#5B2D8E 85%,#C8001D 100%)}
 .back-btn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:var(--r8);padding:7px 12px;cursor:pointer;font-size:14px;font-weight:600;transition:all .15s;flex:none}
 .back-btn:hover{border-color:var(--pink);color:var(--pink)}
 .league-topbar h2{flex:1;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.5px}
@@ -163,7 +166,7 @@ input::placeholder{color:var(--mut)}
 .podium-item{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;gap:0}
 .podium-item.first{transform:translateY(-12px)}
 .podium-avatar{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:#000;margin-bottom:8px;position:relative}
-.podium-avatar.g1{background:linear-gradient(135deg,#C9A425,#E8C640);box-shadow:0 6px 20px rgba(201,164,37,.5)}
+.podium-avatar.g1{background:linear-gradient(135deg,#F5C800,#FFD700);box-shadow:0 6px 20px rgba(245,200,0,.5)}
 .podium-avatar.g2{background:linear-gradient(135deg,#8B9AA8,#B8C5CE);box-shadow:0 6px 20px rgba(139,154,168,.4)}
 .podium-avatar.g3{background:linear-gradient(135deg,#B8752A,#D4924A);box-shadow:0 6px 20px rgba(184,117,42,.4)}
 .podium-crown{position:absolute;top:-14px;font-size:18px}
@@ -284,18 +287,18 @@ input::placeholder{color:var(--mut)}
 .drawer-close-btn:hover{border-color:var(--pink);color:var(--pink)}
 
 /* ===== GUEST CTA ===== */
-.guest-cta{background:linear-gradient(135deg,rgba(229,32,32,.1),rgba(123,47,255,.1));border:1px solid rgba(229,32,32,.25);border-radius:var(--r16);padding:22px 18px;text-align:center;margin-bottom:14px}
+.guest-cta{background:linear-gradient(135deg,rgba(200,0,29,.1),rgba(91,45,142,.1));border:1px solid rgba(200,0,29,.25);border-radius:var(--r16);padding:22px 18px;text-align:center;margin-bottom:14px}
 .guest-cta h3{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.3px}
 .guest-cta p{font-size:13px;color:var(--txt2);margin:8px 0 16px;line-height:1.6}
 .guest-cta .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 
 /* ===== WC LOGO ELEMENTS ===== */
 /* Loading screen */
-.loading-logo-wrap{background:#fff;border-radius:var(--r20);padding:18px 22px;box-shadow:0 12px 48px rgba(229,32,32,.35),0 4px 20px rgba(0,0,0,.5);margin-bottom:20px}
+.loading-logo-wrap{background:#fff;border-radius:var(--r20);padding:18px 22px;box-shadow:0 12px 48px rgba(200,0,29,.35),0 4px 20px rgba(0,0,0,.5);margin-bottom:20px}
 .loading-wc-logo{width:180px;height:auto;display:block}
 
 /* Appbar logo */
-.appbar-wc-logo{height:38px;width:auto;background:#fff;border-radius:8px;padding:3px 5px;flex:none}
+.appbar-wc-logo{height:38px;width:auto;filter:brightness(0) invert(1) drop-shadow(0 2px 8px rgba(245,200,0,.35));flex:none}
 .fifa-tagline{font-size:8px;font-weight:700;color:var(--gold);letter-spacing:1.2px;text-transform:uppercase;margin-top:1px}
 .logo-txt{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:1px;color:var(--txt)}
 .logo-year{color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:900}
@@ -308,7 +311,8 @@ input::placeholder{color:var(--mut)}
 .liga-card::before{background:linear-gradient(180deg,var(--red),var(--gold))}
 
 /* Appbar WC style */
-.appbar{background:rgba(7,7,10,.92);border-bottom:1px solid rgba(229,32,32,.25)}
+.appbar{background:rgba(7,7,10,.92);border-bottom:1px solid rgba(200,0,29,.25)}
+.appbar::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#C8001D 0%,#E85A00 17%,#F5C800 34%,#009A44 51%,#006EB5 68%,#5B2D8E 85%,#C8001D 100%)}
 </style>
 </head>
 <body>
