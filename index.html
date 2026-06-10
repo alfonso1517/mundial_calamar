@@ -493,8 +493,9 @@ input::placeholder{color:var(--mut)}
             <p style="margin-top:10px"><strong>Fase eliminatoria</strong> (con multiplicador):</p>
             <ul>
               <li>Dieciseisavos: <span class="hl">+1 pt</span> por acierto</li>
-              <li>Cuartos de final: <span class="hl">+1.5 pts</span> por acierto</li>
-              <li>Semifinales: <span class="hl">+2 pts</span> por acierto</li>
+              <li>Octavos de final: <span class="hl">+1.5 pts</span> por acierto</li>
+              <li>Cuartos de final: <span class="hl">+2 pts</span> por acierto</li>
+              <li>Semifinales: <span class="hl">+2.5 pts</span> por acierto</li>
               <li>Final: <span class="hl">+3 pts</span> por acierto</li>
             </ul>
             <p style="margin-top:8px">Los resultados los marca el organizador. La clasificación se actualiza en tiempo real.</p>
@@ -535,8 +536,9 @@ input::placeholder{color:var(--mut)}
             <p>Cuando acaben los 6 bloques de la fase de grupos empiezan los <strong>dieciseisavos, cuartos, semifinales y final</strong>. En cada ronda eliges equipos igual que en la fase de grupos, pero con puntuación multiplicada:</p>
             <div class="blocks-table mt6">
               <div class="bt-row"><div class="bt-num" style="color:var(--teal)">⚔️</div><div class="bt-info"><div class="bt-dates">Dieciseisavos</div><div class="bt-desc">1–4 julio · 32 equipos</div></div><div class="bt-limit" style="color:var(--txt2)">+1 pt por acierto</div></div>
-              <div class="bt-row"><div class="bt-num" style="color:var(--lime)">⚡</div><div class="bt-info"><div class="bt-dates">Cuartos de final</div><div class="bt-desc">8–9 julio · 16 equipos</div></div><div class="bt-limit" style="color:var(--lime)">+1.5 pts por acierto</div></div>
-              <div class="bt-row"><div class="bt-num" style="color:var(--gold)">🔥</div><div class="bt-info"><div class="bt-dates">Semifinales</div><div class="bt-desc">13–14 julio · 8 equipos</div></div><div class="bt-limit" style="color:var(--gold)">+2 pts por acierto</div></div>
+              <div class="bt-row"><div class="bt-num" style="color:var(--teal)">⚡</div><div class="bt-info"><div class="bt-dates">Octavos de final</div><div class="bt-desc">5–8 julio · 16 equipos</div></div><div class="bt-limit" style="color:var(--teal)">+1.5 pts por acierto</div></div>
+              <div class="bt-row"><div class="bt-num" style="color:var(--lime)">🔥</div><div class="bt-info"><div class="bt-dates">Cuartos de final</div><div class="bt-desc">9–11 julio · 8 equipos</div></div><div class="bt-limit" style="color:var(--lime)">+2 pts por acierto</div></div>
+              <div class="bt-row"><div class="bt-num" style="color:var(--gold)">💥</div><div class="bt-info"><div class="bt-dates">Semifinales</div><div class="bt-desc">13–14 julio · 4 equipos</div></div><div class="bt-limit" style="color:var(--gold)">+2.5 pts por acierto</div></div>
               <div class="bt-row"><div class="bt-num" style="color:var(--pink)">🏆</div><div class="bt-info"><div class="bt-dates">Final</div><div class="bt-desc">19 julio · 2 equipos</div></div><div class="bt-limit" style="color:var(--pink)">+3 pts por acierto</div></div>
             </div>
             <p style="margin-top:10px;color:var(--txt2)">⚠️ <strong>Recuerda:</strong> si ya usaste un equipo en la fase de grupos, no podrás elegirlo en las eliminatorias. Si todos los equipos que aún quedan vivos ya los has usado antes, no podrás sumar puntos en esa ronda.</p>
@@ -1042,9 +1044,10 @@ async function loadGlobalLeaderboard(){
 
 // ── PICKS ──
 const KNOCKOUTS=[
-  {label:'Dieciseisavos',icon:'⚔️',dates:'1–4 jul',pts:'1 pt'},
-  {label:'Cuartos de final',icon:'⚡',dates:'8–9 jul',pts:'×1.5 pts'},
-  {label:'Semifinales',icon:'🔥',dates:'13–14 jul',pts:'×2 pts'},
+  {label:'Dieciseisavos',icon:'⚔️',dates:'1–4 jul',pts:'×1 pt'},
+  {label:'Octavos de final',icon:'⚡',dates:'5–8 jul',pts:'×1.5 pts'},
+  {label:'Cuartos de final',icon:'🔥',dates:'9–11 jul',pts:'×2 pts'},
+  {label:'Semifinales',icon:'💥',dates:'13–14 jul',pts:'×2.5 pts'},
   {label:'Final',icon:'🏆',dates:'19 jul',pts:'×3 pts'},
 ];
 function renderPicks(containerId){
