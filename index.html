@@ -211,6 +211,28 @@ input::placeholder{color:var(--mut)}
 .knockout-sep{text-align:center;padding:20px 0 8px;color:var(--mut);font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;display:flex;align-items:center;gap:10px}
 .knockout-sep::before,.knockout-sep::after{content:"";flex:1;height:1px;background:var(--line)}
 .ko-pts-badge{font-size:10px;font-weight:700;background:rgba(245,200,0,.1);color:var(--gold);border:1px solid rgba(245,200,0,.25);border-radius:999px;padding:3px 8px;flex:none}
+
+/* ===== AWARD PICKS ===== */
+.awards-sep{text-align:center;padding:20px 0 8px;color:var(--mut);font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.awards-sep::before,.awards-sep::after{content:"";flex:1;height:1px;background:var(--line)}
+.award-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r16);margin:10px 0;overflow:hidden}
+.award-card.a-balon{border-color:rgba(245,200,0,.3)}
+.award-card.a-bota{border-color:rgba(200,0,29,.25)}
+.award-card.a-joven{border-color:rgba(0,154,68,.25)}
+.award-hdr{display:flex;align-items:center;gap:12px;padding:15px 16px 12px}
+.award-icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;flex:none}
+.award-icon.a-balon{background:linear-gradient(135deg,rgba(245,200,0,.3),rgba(245,200,0,.1))}
+.award-icon.a-bota{background:linear-gradient(135deg,rgba(200,0,29,.25),rgba(232,90,0,.1))}
+.award-icon.a-joven{background:linear-gradient(135deg,rgba(0,154,68,.25),rgba(0,106,181,.1))}
+.award-name{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:.3px;line-height:1.2}
+.award-pts-lbl{font-size:10px;font-weight:700;background:rgba(245,200,0,.1);color:var(--gold);border:1px solid rgba(245,200,0,.2);border-radius:999px;padding:2px 7px;margin-top:3px;display:inline-block}
+.award-body{padding:0 16px 15px;border-top:1px solid var(--line)}
+.award-body-inner{padding-top:13px}
+.award-saved-val{font-size:13px;color:var(--gold);font-weight:600;margin-bottom:8px}
+.award-input{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:var(--r12);padding:11px 14px;color:var(--txt);font-size:16px;font-family:'Barlow','Inter',sans-serif;outline:none;transition:border-color .15s;margin-bottom:10px}
+.award-input:focus{border-color:var(--gold)}
+.award-input::placeholder{color:var(--mut)}
+.award-deadline{font-size:11px;color:var(--mut);margin-top:8px}
 .bbody{display:none;border-top:1px solid var(--line);padding:14px 16px 16px}
 .block.exp .bbody{display:block}
 .hint{font-size:12px;color:var(--mut);margin-bottom:12px;font-weight:500}
@@ -633,6 +655,37 @@ const TEAMS={
 };
 const BLOQUES={1:{f:"11–14 jun"},2:{f:"15–18 jun"},3:{f:"19–22 jun"},4:{f:"23–24 jun"},5:{f:"25–26 jun"},6:{f:"27–28 jun"}};
 const FECHAS_LIMITE={1:"2026-06-11T21:00:00+02:00",2:"2026-06-15T00:00:00+02:00",3:"2026-06-19T00:00:00+02:00",4:"2026-06-23T00:00:00+02:00",5:"2026-06-25T00:00:00+02:00",6:"2026-06-27T00:00:00+02:00"};
+const SPECIAL_DEADLINE="2026-06-11T21:00:00+02:00"; // Cierra con el primer partido
+const AWARDS=[
+  {id:'balon_oro', label:'Balón de Oro del Mundial', icon:'🏅', cls:'a-balon'},
+  {id:'bota_oro',  label:'Bota de Oro',              icon:'👟', cls:'a-bota'},
+  {id:'mejor_joven',label:'Mejor Jugador Joven',     icon:'⭐', cls:'a-joven'},
+];
+const JUGADORES=[
+  "Lionel Messi","Lautaro Martínez","Julián Álvarez","Rodrigo De Paul",
+  "Kylian Mbappé","Antoine Griezmann","Ousmane Dembélé","Warren Zaïre-Emery","Aurélien Tchouaméni","Eduardo Camavinga",
+  "Vinicius Jr","Rodrygo","Raphinha","Richarlison","Endrick","Casemiro",
+  "Pedri","Gavi","Lamine Yamal","Álvaro Morata","Rodri","Nico Williams","Dani Olmo","Ferran Torres",
+  "Jude Bellingham","Harry Kane","Bukayo Saka","Phil Foden","Cole Palmer","Declan Rice",
+  "Florian Wirtz","Jamal Musiala","Kai Havertz","Joshua Kimmich","Leroy Sané","Antonio Rüdiger",
+  "Cristiano Ronaldo","Bruno Fernandes","Rafael Leão","Bernardo Silva","Rúben Neves","João Cancelo",
+  "Virgil van Dijk","Cody Gakpo","Xavi Simons","Memphis Depay",
+  "Kevin De Bruyne","Romelu Lukaku","Lois Openda","Youri Tielemans",
+  "Federico Valverde","Darwin Núñez","Rodrigo Bentancur","Luis Suárez",
+  "Erling Haaland","Martin Ødegaard",
+  "James Rodríguez","Luis Díaz","Jhon Arias","Richard Ríos",
+  "Hirving Lozano","Raúl Jiménez","Santiago Giménez",
+  "Mohamed Salah",
+  "Achraf Hakimi","Hakim Ziyech","Youssef En-Nesyri",
+  "Takefusa Kubo","Kaoru Mitoma","Ritsu Doan",
+  "Alexander Isak","Viktor Gyökeres","Dejan Kulusevski",
+  "Son Heung-min","Lee Kang-in",
+  "Sadio Mané","Ismaïla Sarr",
+  "Christian Pulisic","Gio Reyna","Tyler Adams",
+  "Alphonso Davies","Jonathan David","Cyle Larin",
+  "Salem Al-Dawsari",
+  "Takumi Minamino","Wataru Endō",
+];
 const PARTIDOS={
   1:[["MEX","RSA"],["KOR","CZE"],["CAN","BIH"],["USA","PAR"],["QAT","SUI"],["BRA","MAR"],["HAI","SCO"],["AUS","TUR"],["GER","CUW"],["NED","JPN"]],
   2:[["CIV","ECU"],["SWE","TUN"],["ESP","CPV"],["BEL","EGY"],["KSA","URU"],["IRN","NZE"],["FRA","SEN"],["IRQ","NOR"],["ARG","ALG"],["AUT","JOR"],["POR","COD"],["ENG","CRO"],["GHA","PAN"],["UZB","COL"],["RSA","CZE"],["BIH","SUI"]],
@@ -644,7 +697,7 @@ const PARTIDOS={
 
 // ── STATE ──
 let currentUser=null; // {id, username} — null = modo invitado
-let mySelections={},pendingSel={},expandedBlocks={};
+let mySelections={},pendingSel={},expandedBlocks={},mySpecialPicks={};
 let currentLeague=null,currentLeagueTab='ranking',currentHomeTab='leagues',currentAuthTab='login';
 
 // ── INIT ──
@@ -772,7 +825,7 @@ async function doAuth(){
 }
 function logout(){
   localStorage.removeItem('jc_user');
-  currentUser=null;mySelections={};pendingSel={};
+  currentUser=null;mySelections={};pendingSel={};mySpecialPicks={};
   updateAuthUI();
   loadHeroStats();
   loadLeaguesList();
@@ -821,6 +874,13 @@ async function loadMySelections(){
   (data||[]).forEach(r=>{mySelections[r.block]={team1:r.team1,team2:r.team2};});
   pendingSel={};
   Object.entries(mySelections).forEach(([b,s])=>{pendingSel[Number(b)]=[s.team1,s.team2];});
+  await loadSpecialPicks();
+}
+async function loadSpecialPicks(){
+  if(!currentUser)return;
+  const {data}=await sb.from('special_picks').select('*').eq('user_id',currentUser.id);
+  mySpecialPicks={};
+  (data||[]).forEach(r=>{mySpecialPicks[r.award]=r.player;});
 }
 async function saveSelection(block){
   const teams=pendingSel[block];
@@ -990,6 +1050,7 @@ const KNOCKOUTS=[
 function renderPicks(containerId){
   const el=document.getElementById(containerId||'subtab-picks');
   el.innerHTML='';
+  renderSpecialPicks(el);
   for(let b=1;b<=6;b++){
     const abierto=Date.now()<new Date(FECHAS_LIMITE[b]).getTime();
     const guardado=mySelections[b];
@@ -1105,6 +1166,76 @@ async function doSaveBlock(b,btn){
     showMsg(msg,'⚠️ '+(e.message||'Error al guardar.'),'bad');
     btn.disabled=false;btn.textContent='Guardar bloque '+b;
   }
+}
+
+// ── SPECIAL PICKS ──
+async function doSaveAward(awardId,btn){
+  if(!requireAuth('register'))return;
+  if(Date.now()>=new Date(SPECIAL_DEADLINE).getTime()){
+    showMsg(document.getElementById('amsg-'+awardId),'⏰ El plazo para este pick ya ha cerrado.','bad');
+    return;
+  }
+  const input=document.getElementById('ai-'+awardId);
+  const player=input.value.trim();
+  if(!player)return;
+  const msgEl=document.getElementById('amsg-'+awardId);
+  btn.disabled=true;btn.textContent='Guardando…';
+  try{
+    const {error}=await sb.from('special_picks').upsert(
+      {user_id:currentUser.id,award:awardId,player,updated_at:new Date().toISOString()},
+      {onConflict:'user_id,award'}
+    );
+    if(error)throw error;
+    mySpecialPicks[awardId]=player;
+    showMsg(msgEl,'✅ ¡Guardado! '+player,'ok');
+    btn.textContent='Actualizar';btn.disabled=false;
+    // Actualizar la línea de "elegido" sin re-renderizar todo
+    const savedEl=document.getElementById('aval-'+awardId);
+    if(savedEl)savedEl.textContent='✓ '+player;
+  }catch(e){
+    showMsg(msgEl,'⚠️ '+(e.message||'Error al guardar.'),'bad');
+    btn.disabled=false;btn.textContent='Guardar';
+  }
+}
+function renderSpecialPicks(container){
+  const abierto=Date.now()<new Date(SPECIAL_DEADLINE).getTime();
+  const sep=document.createElement('div');
+  sep.className='awards-sep';
+  sep.textContent='🏅 Premios del Torneo';
+  container.appendChild(sep);
+  AWARDS.forEach(a=>{
+    const guardado=mySpecialPicks[a.id]||'';
+    const card=document.createElement('div');
+    card.className='award-card '+a.cls;
+    const badgeCls=guardado?'b-done':(abierto?'b-open':'b-closed');
+    const badgeTxt=guardado?'✓ Elegido':(abierto?'Abierto':'Cerrado');
+    const playersList=JUGADORES.map(p=>`<option value="${p}">`).join('');
+    const bodyHTML=abierto?`
+      ${guardado?`<div class="award-saved-val" id="aval-${a.id}">✓ ${guardado}</div>`:`<div class="award-saved-val" id="aval-${a.id}" style="display:none"></div>`}
+      <input class="award-input" id="ai-${a.id}" list="pl-${a.id}"
+        placeholder="Escribe o busca un jugador…"
+        value="${guardado}"
+        oninput="document.getElementById('asave-${a.id}').disabled=!this.value.trim()">
+      <datalist id="pl-${a.id}">${playersList}</datalist>
+      <div class="pick-actions">
+        <button class="btn btn-primary btn-sm" id="asave-${a.id}" ${guardado?'':'disabled'}
+          onclick="doSaveAward('${a.id}',this)">${guardado?'Actualizar':'Guardar'}</button>
+        <div class="msg" id="amsg-${a.id}"></div>
+      </div>
+      <div class="award-deadline">⏰ Cierra con el primer partido · 11 jun 21:00</div>`
+    :`<div class="lockmsg">${guardado?`Tu elección: <strong>${guardado}</strong>.`:'⏰ No enviaste este pick.'}</div>`;
+    card.innerHTML=`
+      <div class="award-hdr">
+        <div class="award-icon ${a.cls}">${a.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div class="award-name">${a.label}</div>
+          <span class="award-pts-lbl">+2 pts si aciertas</span>
+        </div>
+        <span class="badge ${badgeCls}">${badgeTxt}</span>
+      </div>
+      <div class="award-body"><div class="award-body-inner">${bodyHTML}</div></div>`;
+    container.appendChild(card);
+  });
 }
 
 // ── HOME TABS ──
