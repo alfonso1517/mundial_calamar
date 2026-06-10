@@ -10,13 +10,14 @@
 <style>
 /* ===== TOKENS ===== */
 :root {
-  --bg:#060810; --bg2:#0c0f1f; --card:#0f1225; --card2:#161a2e; --line:#1d2242;
-  --txt:#eeeeff; --txt2:#b0b4cc; --mut:#565a78;
+  --bg:#07070A; --bg2:#0D0D14; --card:#111118; --card2:#181820; --line:#26263A;
+  --txt:#F2F2FF; --txt2:#9898B8; --mut:#505068;
   --gold:#C9A425; --gold2:#E8C640;
-  --pink:#E31B78; --pink2:#FF2E8A;
-  --purple:#7C2FFF; --purple2:#A35EFF;
-  --green:#22C97A; --red:#E82D2D; --teal:#15C2B8;
-  --grad:#E31B78; /* fallback */
+  --pink:#E52020; --pink2:#FF4444;   /* WC Rojo como color primario */
+  --purple:#7B2FFF; --purple2:#A355FF;
+  --lime:#95C11F; --lime2:#B8DC30;
+  --green:#22C97A; --red:#E52020; --teal:#15C2B8;
+  --grad:#E52020;
   --r8:8px; --r12:12px; --r16:16px; --r20:20px;
 }
 
@@ -25,12 +26,20 @@
 body{background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
 
 /* ===== BACKGROUND ===== */
-body::before{content:"";position:fixed;inset:0;z-index:-1;
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;
+  background-image:url('fifa26.png');
+  background-size:cover;background-position:center;
+  filter:blur(14px) brightness(0.13) saturate(1.5);
+  transform:scale(1.12);
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;
   background:
-    radial-gradient(ellipse 70% 55% at 10% 5%,rgba(124,47,255,.22) 0%,transparent 55%),
-    radial-gradient(ellipse 55% 45% at 90% 90%,rgba(227,27,120,.16) 0%,transparent 50%),
-    radial-gradient(ellipse 40% 30% at 50% 50%,rgba(201,164,37,.06) 0%,transparent 60%),
-    linear-gradient(180deg,#060810 0%,#08091a 100%);
+    radial-gradient(ellipse 65% 50% at 5% 5%,rgba(123,47,255,.22) 0%,transparent 50%),
+    radial-gradient(ellipse 55% 45% at 95% 90%,rgba(229,32,32,.18) 0%,transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(149,193,31,.07) 0%,transparent 65%),
+    linear-gradient(180deg,#07070A 0%,#0D0D14 100%);
 }
 
 /* ===== LAYOUT ===== */
@@ -93,7 +102,7 @@ input::placeholder{color:var(--mut)}
 .user-name{font-size:13px;font-weight:600;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ===== STATS HERO ===== */
-.stats-hero{background:var(--card);border:1px solid var(--line);border-radius:var(--r16);padding:16px 18px;margin:14px 0;display:flex;align-items:center;gap:0}
+.stats-hero{background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(90deg,var(--red),var(--gold),var(--lime)) border-box;border:2px solid transparent;border-radius:var(--r16);padding:16px 18px;margin:14px 0;display:flex;align-items:center;gap:0}
 .stat-item{flex:1;text-align:center;position:relative}
 .stat-item+.stat-item::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);height:40px;width:1px;background:var(--line)}
 .stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;letter-spacing:.5px}
@@ -227,7 +236,7 @@ input::placeholder{color:var(--mut)}
 .rule-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px}
 .rule-card.c1::before{background:linear-gradient(180deg,var(--pink),var(--purple))}
 .rule-card.c2::before{background:linear-gradient(180deg,var(--gold),var(--gold2))}
-.rule-card.c3::before{background:linear-gradient(180deg,var(--teal),#0eb8ae)}
+.rule-card.c3::before{background:linear-gradient(180deg,var(--lime),var(--lime2))}
 .rule-card.c4::before{background:linear-gradient(180deg,var(--purple),var(--purple2))}
 .rule-card.c5::before{background:linear-gradient(180deg,var(--green),#1aaa66)}
 .rule-card.c6::before{background:linear-gradient(180deg,#ff7b2f,#e8561a)}
@@ -275,24 +284,51 @@ input::placeholder{color:var(--mut)}
 .drawer-close-btn:hover{border-color:var(--pink);color:var(--pink)}
 
 /* ===== GUEST CTA ===== */
-.guest-cta{background:linear-gradient(135deg,rgba(227,27,120,.1),rgba(124,47,255,.1));border:1px solid rgba(227,27,120,.25);border-radius:var(--r16);padding:22px 18px;text-align:center;margin-bottom:14px}
+.guest-cta{background:linear-gradient(135deg,rgba(229,32,32,.1),rgba(123,47,255,.1));border:1px solid rgba(229,32,32,.25);border-radius:var(--r16);padding:22px 18px;text-align:center;margin-bottom:14px}
 .guest-cta h3{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.3px}
 .guest-cta p{font-size:13px;color:var(--txt2);margin:8px 0 16px;line-height:1.6}
 .guest-cta .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+/* ===== WC LOGO ELEMENTS ===== */
+/* Loading screen */
+.loading-logo-wrap{background:#fff;border-radius:var(--r20);padding:18px 22px;box-shadow:0 12px 48px rgba(229,32,32,.35),0 4px 20px rgba(0,0,0,.5);margin-bottom:20px}
+.loading-wc-logo{width:180px;height:auto;display:block}
+
+/* Appbar logo */
+.appbar-wc-logo{height:38px;width:auto;background:#fff;border-radius:8px;padding:3px 5px;flex:none}
+.fifa-tagline{font-size:8px;font-weight:700;color:var(--gold);letter-spacing:1.2px;text-transform:uppercase;margin-top:1px}
+.logo-txt{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:1px;color:var(--txt)}
+.logo-year{color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:900}
+
+/* Auth drawer WC logo */
+.drawer-wc-logo-wrap{background:#fff;border-radius:var(--r12);padding:12px 16px;margin-bottom:18px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.drawer-wc-logo{width:110px;height:auto}
+
+/* Liga card — acento WC */
+.liga-card::before{background:linear-gradient(180deg,var(--red),var(--gold))}
+
+/* Appbar WC style */
+.appbar{background:rgba(7,7,10,.92);border-bottom:1px solid rgba(229,32,32,.25)}
 </style>
 </head>
 <body>
 
 <!-- ════════════════════ LOADING ════════════════════ -->
 <div id="screen-loading">
-  <div class="spin"></div>
-  <div class="load-txt">CARGANDO…</div>
+  <div class="loading-logo-wrap">
+    <img src="World-Cup-2026-Logo-PNG.webp" alt="FIFA World Cup 2026" class="loading-wc-logo">
+  </div>
+  <div class="spin" style="margin-top:8px"></div>
+  <div class="load-txt">FIFA WORLD CUP 2026</div>
 </div>
 
 <!-- ════════════════════ AUTH DRAWER ════════════════════ -->
 <div id="drawer-overlay" class="drawer-overlay" onclick="closeAuthDrawer()"></div>
 <div id="auth-drawer" class="auth-drawer">
   <div class="drawer-inner">
+    <div class="drawer-wc-logo-wrap">
+      <img src="World-Cup-2026-Logo-PNG.webp" alt="FIFA World Cup 2026" class="drawer-wc-logo">
+    </div>
     <div class="drawer-hdr">
       <div class="drawer-title"><span class="ds">○△□</span>CALAMAR <span style="color:var(--gold)">26</span></div>
       <button class="drawer-close-btn" onclick="closeAuthDrawer()">✕</button>
@@ -328,8 +364,11 @@ input::placeholder{color:var(--mut)}
   <div id="view-home">
     <div class="appbar">
       <div class="appbar-logo">
-        <span class="logo-shapes">○△□</span>
-        <span class="logo-txt">CALAMAR <span class="logo-year">26</span></span>
+        <img src="World-Cup-2026-Logo-PNG.webp" alt="" class="appbar-wc-logo">
+        <div>
+          <span class="logo-txt">CALAMAR <span class="logo-year">26</span></span>
+          <div class="fifa-tagline">⚽ FIFA WORLD CUP 2026</div>
+        </div>
       </div>
       <div class="appbar-right">
         <button id="btn-entrar" class="btn btn-primary btn-sm" onclick="openAuthDrawer('register')">Entrar</button>
