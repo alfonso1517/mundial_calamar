@@ -261,6 +261,24 @@ input::placeholder{color:var(--mut)}
 /* ===== UTILS ===== */
 .divider{height:1px;background:var(--line);margin:6px 0}
 .mt6{margin-top:6px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+
+/* ===== AUTH DRAWER ===== */
+.auth-drawer{position:fixed;top:0;left:0;bottom:0;width:min(360px,90vw);background:var(--card);border-right:1px solid var(--line);z-index:100;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;box-shadow:8px 0 48px rgba(0,0,0,.75)}
+.auth-drawer.open{transform:translateX(0)}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;opacity:0;pointer-events:none;transition:opacity .28s;backdrop-filter:blur(4px)}
+.drawer-overlay.open{opacity:1;pointer-events:auto}
+.drawer-inner{padding:28px 22px 44px}
+.drawer-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.drawer-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:19px;letter-spacing:.5px;display:flex;align-items:center;gap:7px}
+.drawer-title .ds{color:var(--pink);font-size:13px;letter-spacing:3px}
+.drawer-close-btn{background:var(--card2);border:1px solid var(--line);color:var(--txt2);border-radius:var(--r8);padding:7px 12px;cursor:pointer;font-size:15px;line-height:1;transition:all .15s}
+.drawer-close-btn:hover{border-color:var(--pink);color:var(--pink)}
+
+/* ===== GUEST CTA ===== */
+.guest-cta{background:linear-gradient(135deg,rgba(227,27,120,.1),rgba(124,47,255,.1));border:1px solid rgba(227,27,120,.25);border-radius:var(--r16);padding:22px 18px;text-align:center;margin-bottom:14px}
+.guest-cta h3{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:.3px}
+.guest-cta p{font-size:13px;color:var(--txt2);margin:8px 0 16px;line-height:1.6}
+.guest-cta .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -271,34 +289,32 @@ input::placeholder{color:var(--mut)}
   <div class="load-txt">CARGANDO…</div>
 </div>
 
-<!-- ════════════════════ AUTH ════════════════════ -->
-<div id="screen-auth" class="hidden">
-  <div class="auth-hero">
-    <div class="shapes">
-      <span class="shape">○</span>
-      <span class="shape">△</span>
-      <span class="shape">□</span>
+<!-- ════════════════════ AUTH DRAWER ════════════════════ -->
+<div id="drawer-overlay" class="drawer-overlay" onclick="closeAuthDrawer()"></div>
+<div id="auth-drawer" class="auth-drawer">
+  <div class="drawer-inner">
+    <div class="drawer-hdr">
+      <div class="drawer-title"><span class="ds">○△□</span>CALAMAR <span style="color:var(--gold)">26</span></div>
+      <button class="drawer-close-btn" onclick="closeAuthDrawer()">✕</button>
     </div>
-    <div class="game-title">Juego<br>del Calamar</div>
-    <div class="wc-badge">🏆 FIFA WORLD CUP 2026</div>
-    <p>Crea tu liga, elige tus equipos, compite con amigos</p>
-  </div>
-  <div class="auth-box">
     <div class="tab-toggle">
       <button id="authTabLogin" class="on" onclick="setAuthTab('login')">Entrar</button>
       <button id="authTabReg" onclick="setAuthTab('register')">Registrarse</button>
     </div>
     <div class="field">
       <label>Nombre de usuario</label>
-      <input id="authUser" type="text" placeholder="ej: Fonso" autocomplete="username" maxlength="30">
+      <input id="authUser" type="text" placeholder="ej: Fonso" autocomplete="username" maxlength="30"
+        onkeydown="if(event.key==='Enter')document.getElementById('authPass').focus()">
     </div>
     <div class="field">
       <label>Contraseña</label>
-      <input id="authPass" type="password" placeholder="Mínimo 6 caracteres" autocomplete="current-password">
+      <input id="authPass" type="password" placeholder="Mínimo 6 caracteres" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doAuth()">
     </div>
     <div id="authPassConfirmField" class="field hidden">
       <label>Confirmar contraseña</label>
-      <input id="authPassConfirm" type="password" placeholder="Repite la contraseña">
+      <input id="authPassConfirm" type="password" placeholder="Repite la contraseña"
+        onkeydown="if(event.key==='Enter')doAuth()">
     </div>
     <button class="btn btn-primary" style="width:100%" id="authBtn" onclick="doAuth()">Entrar</button>
     <div class="msg" id="authMsg"></div>
@@ -316,11 +332,14 @@ input::placeholder{color:var(--mut)}
         <span class="logo-txt">CALAMAR <span class="logo-year">26</span></span>
       </div>
       <div class="appbar-right">
-        <div class="user-chip">
-          <div class="user-avatar" id="userAvatar">?</div>
-          <span class="user-name" id="headerUser"></span>
+        <button id="btn-entrar" class="btn btn-primary btn-sm" onclick="openAuthDrawer('register')">Entrar</button>
+        <div id="user-chip-wrap" class="hidden" style="display:flex;align-items:center;gap:8px">
+          <div class="user-chip">
+            <div class="user-avatar" id="userAvatar">?</div>
+            <span class="user-name" id="headerUser"></span>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
         </div>
-        <button class="btn btn-ghost btn-sm" onclick="logout()">Salir</button>
       </div>
     </div>
 
@@ -329,15 +348,15 @@ input::placeholder{color:var(--mut)}
       <div class="stats-hero">
         <div class="stat-item">
           <div class="stat-val gold" id="heropts">–</div>
-          <div class="stat-lbl">Total pts</div>
+          <div class="stat-lbl" id="lbl-pts">Total pts</div>
         </div>
         <div class="stat-item">
           <div class="stat-val pink" id="herorank">–</div>
-          <div class="stat-lbl">Rank global</div>
+          <div class="stat-lbl" id="lbl-rank">Rank global</div>
         </div>
         <div class="stat-item">
           <div class="stat-val teal" id="heroligas">–</div>
-          <div class="stat-lbl">Ligas</div>
+          <div class="stat-lbl" id="lbl-ligas">Ligas</div>
         </div>
       </div>
 
@@ -516,7 +535,6 @@ const SUPABASE_URL="https://rkeiziitgworumqfyntr.supabase.co";
 const SUPABASE_KEY="sb_publishable_lEXfmKEOH38OCyG1m8cqpA_xmIYlJtG";
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false}});
 
-// Hash seguro con sal fija + username (no se envía email, no hay rate limits)
 async function sha256(text){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
@@ -549,7 +567,7 @@ const PARTIDOS={
 };
 
 // ── STATE ──
-let currentUser=null; // {id, username} guardado en localStorage
+let currentUser=null; // {id, username} — null = modo invitado
 let mySelections={},pendingSel={},expandedBlocks={};
 let currentLeague=null,currentLeagueTab='ranking',currentHomeTab='leagues',currentAuthTab='login';
 
@@ -562,38 +580,42 @@ async function init(){
     try{
       currentUser=JSON.parse(saved);
       await loadMySelections();
-      if(invite){try{await joinLeague(invite);}catch(e){}}
-      showApp();
-      if(invite){
-        const {data:lg}=await sb.from('leagues').select('*').eq('invite_code',invite.toUpperCase()).single();
-        if(lg){openLeague(lg);return;}
-      }
     }catch(e){
       localStorage.removeItem('jc_user');
-      if(invite)sessionStorage.setItem('pendingInvite',invite);
-      showAuth();
+      currentUser=null;
     }
-  }else{
-    if(invite)sessionStorage.setItem('pendingInvite',invite);
-    showAuth();
+  }
+  // Siempre mostrar la app (modo invitado si no hay sesión)
+  showApp();
+  if(invite){
+    if(currentUser){
+      try{await joinLeague(invite);}catch(e){}
+      const {data:lg}=await sb.from('leagues').select('*').eq('invite_code',invite.toUpperCase()).single();
+      if(lg){openLeague(lg);return;}
+    }else{
+      sessionStorage.setItem('pendingInvite',invite);
+      openAuthDrawer('register');
+    }
   }
 }
 
 // ── SCREENS ──
-function showAuth(){
-  document.getElementById('screen-loading').classList.add('hidden');
-  document.getElementById('screen-auth').classList.remove('hidden');
-  document.getElementById('screen-app').classList.add('hidden');
-}
 function showApp(){
   document.getElementById('screen-loading').classList.add('hidden');
-  document.getElementById('screen-auth').classList.add('hidden');
   document.getElementById('screen-app').classList.remove('hidden');
-  const uname=currentUser?.username||'';
-  document.getElementById('headerUser').textContent=uname;
-  document.getElementById('userAvatar').textContent=uname.charAt(0).toUpperCase()||'?';
+  updateAuthUI();
   loadHeroStats();
   loadLeaguesList();
+}
+function updateAuthUI(){
+  const in_=!!currentUser;
+  document.getElementById('btn-entrar').classList.toggle('hidden',in_);
+  document.getElementById('user-chip-wrap').classList.toggle('hidden',!in_);
+  if(in_){
+    const u=currentUser.username||'';
+    document.getElementById('headerUser').textContent=u;
+    document.getElementById('userAvatar').textContent=u.charAt(0).toUpperCase()||'?';
+  }
 }
 function backToHome(){
   document.getElementById('view-home').classList.remove('hidden');
@@ -603,7 +625,24 @@ function backToHome(){
   loadHeroStats();
 }
 
-// ── AUTH ──
+// ── AUTH DRAWER ──
+function openAuthDrawer(tab){
+  if(tab)setAuthTab(tab);
+  document.getElementById('auth-drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('authMsg').textContent='';
+  setTimeout(()=>document.getElementById('authUser').focus(),300);
+}
+function closeAuthDrawer(){
+  document.getElementById('auth-drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+function requireAuth(tab){
+  if(currentUser)return true;
+  openAuthDrawer(tab||'register');
+  return false;
+}
+
 function setAuthTab(tab){
   currentAuthTab=tab;
   document.getElementById('authTabLogin').classList.toggle('on',tab==='login');
@@ -625,10 +664,8 @@ async function doAuth(){
   }
   btn.disabled=true;btn.textContent=currentAuthTab==='login'?'Entrando…':'Creando cuenta…';
   try{
-    // Hash: sal fija + username en minúsculas + contraseña
     const hash=await sha256('squid2026:'+username.toLowerCase()+':'+pass);
     if(currentAuthTab==='register'){
-      // Comprobar si el username ya existe (case-insensitive)
       const {data:ex}=await sb.from('users').select('id').ilike('username',username).maybeSingle();
       if(ex)throw new Error('Ese nombre de usuario ya está en uso.');
       const {data,error}=await sb.from('users').insert([{username,password_hash:hash}]).select('id,username').single();
@@ -644,7 +681,14 @@ async function doAuth(){
     await loadMySelections();
     const pending=sessionStorage.getItem('pendingInvite');
     if(pending){sessionStorage.removeItem('pendingInvite');try{await joinLeague(pending);}catch(e){}}
-    showApp();
+    closeAuthDrawer();
+    updateAuthUI();
+    loadHeroStats();
+    loadLeaguesList();
+    if(pending){
+      const {data:lgData}=await sb.from('leagues').select('*').eq('invite_code',pending.toUpperCase()).single();
+      if(lgData)setTimeout(()=>openLeague(lgData),400);
+    }
   }catch(e){
     showMsg(msg,e.message||'Error desconocido.','bad');
   }
@@ -653,7 +697,9 @@ async function doAuth(){
 function logout(){
   localStorage.removeItem('jc_user');
   currentUser=null;mySelections={};pendingSel={};
-  showAuth();
+  updateAuthUI();
+  loadHeroStats();
+  loadLeaguesList();
 }
 
 // ── HERO STATS ──
@@ -661,6 +707,24 @@ async function loadHeroStats(){
   document.getElementById('heropts').textContent='–';
   document.getElementById('herorank').textContent='–';
   document.getElementById('heroligas').textContent='–';
+  if(!currentUser){
+    // Modo invitado: muestra estadísticas globales como anzuelo
+    const [{count:uc},{count:lc}]=await Promise.all([
+      sb.from('users').select('*',{count:'exact',head:true}),
+      sb.from('leagues').select('*',{count:'exact',head:true})
+    ]);
+    document.getElementById('heropts').textContent=uc||0;
+    document.getElementById('herorank').textContent=lc||0;
+    document.getElementById('heroligas').textContent='?';
+    document.getElementById('lbl-pts').textContent='Jugadores';
+    document.getElementById('lbl-rank').textContent='Ligas activas';
+    document.getElementById('lbl-ligas').textContent='Tu rank';
+    return;
+  }
+  // Restaurar etiquetas normales
+  document.getElementById('lbl-pts').textContent='Total pts';
+  document.getElementById('lbl-rank').textContent='Rank global';
+  document.getElementById('lbl-ligas').textContent='Ligas';
   const [{data:lb},{data:lm}]=await Promise.all([
     sb.rpc('get_global_leaderboard'),
     sb.from('league_members').select('id').eq('user_id',currentUser.id)
@@ -696,6 +760,17 @@ async function saveSelection(block){
 // ── LEAGUES ──
 async function loadLeaguesList(){
   const list=document.getElementById('leagues-list');
+  if(!currentUser){
+    list.innerHTML=`<div class="guest-cta">
+      <h3>⚽ Compite con tus amigos</h3>
+      <p>Crea tu liga, elige tus equipos y ve quién es mejor pronosticando el Mundial 2026.</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="openAuthDrawer('register')">Registrarse gratis</button>
+        <button class="btn btn-ghost" onclick="openAuthDrawer('login')">Ya tengo cuenta</button>
+      </div>
+    </div>`;
+    return;
+  }
   list.innerHTML='<div class="empty"><span class="ico">⏳</span></div>';
   const {data}=await sb.from('league_members').select('league_id,leagues(id,name,invite_code,creator_id)').eq('user_id',currentUser.id);
   const leagues=(data||[]).map(r=>r.leagues).filter(Boolean);
@@ -731,6 +806,7 @@ async function joinLeague(code){
   return league;
 }
 async function doJoin(){
+  if(!requireAuth('register'))return;
   const code=document.getElementById('joinCodeInput').value.trim().toUpperCase();
   if(code.length<4){showToast('Escribe un código válido');return;}
   try{
@@ -850,6 +926,7 @@ function renderPicks(){
   }
 }
 function toggleBlock(b){
+  if(!requireAuth('register'))return;
   expandedBlocks[b]=!expandedBlocks[b];
   document.getElementById('blk'+b).classList.toggle('exp',expandedBlocks[b]);
   if(expandedBlocks[b])renderBlockBody(b,Date.now()<new Date(FECHAS_LIMITE[b]).getTime());
@@ -929,6 +1006,7 @@ function switchHomeTab(tab){
 
 // ── CREATE MODAL ──
 function showCreateModal(){
+  if(!requireAuth('register'))return;
   document.getElementById('modal-create').classList.remove('hidden');
   document.getElementById('newLigaName').value='';
   document.getElementById('createMsg').textContent='';
