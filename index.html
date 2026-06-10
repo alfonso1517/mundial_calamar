@@ -613,7 +613,8 @@ async function doAuth(){
     if(pass!==confirm){showMsg(msg,'Las contraseñas no coinciden.','bad');return;}
   }
   btn.disabled=true;btn.textContent=currentAuthTab==='login'?'Entrando…':'Creando cuenta…';
-  const email=username.toLowerCase().replace(/\s+/g,'_')+'@squidcup.com';
+  const emailUser=username.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')||'user';
+  const email=emailUser+'@squidcup.com';
   try{
     if(currentAuthTab==='register'){
       const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{username}}});
