@@ -514,7 +514,13 @@ input::placeholder{color:var(--mut)}
 <script>
 const SUPABASE_URL="https://rkeiziitgworumqfyntr.supabase.co";
 const SUPABASE_KEY="sb_publishable_lEXfmKEOH38OCyG1m8cqpA_xmIYlJtG";
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false}});
+
+// Hash seguro con sal fija + username (no se envía email, no hay rate limits)
+async function sha256(text){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
 
 // ── GAME DATA ──
 const TEAMS={
@@ -543,7 +549,7 @@ const PARTIDOS={
 };
 
 // ── STATE ──
-let session=null,profile=null;
+let currentUser=null; // {id, username} guardado en localStorage
 let mySelections={},pendingSel={},expandedBlocks={};
 let currentLeague=null,currentLeagueTab='ranking',currentHomeTab='leagues',currentAuthTab='login';
 
@@ -551,18 +557,23 @@ let currentLeague=null,currentLeagueTab='ranking',currentHomeTab='leagues',curre
 async function init(){
   const params=new URLSearchParams(location.search);
   const invite=params.get('liga');
-  const {data:{session:s}}=await sb.auth.getSession();
-  session=s;
-  if(session){
-    await loadProfile();
-    await loadMySelections();
-    if(invite){try{await joinLeague(invite);}catch(e){}}
-    showApp();
-    if(invite){
-      const {data:lg}=await sb.from('leagues').select('*').eq('invite_code',invite.toUpperCase()).single();
-      if(lg){openLeague(lg);return;}
+  const saved=localStorage.getItem('jc_user');
+  if(saved){
+    try{
+      currentUser=JSON.parse(saved);
+      await loadMySelections();
+      if(invite){try{await joinLeague(invite);}catch(e){}}
+      showApp();
+      if(invite){
+        const {data:lg}=await sb.from('leagues').select('*').eq('invite_code',invite.toUpperCase()).single();
+        if(lg){openLeague(lg);return;}
+      }
+    }catch(e){
+      localStorage.removeItem('jc_user');
+      if(invite)sessionStorage.setItem('pendingInvite',invite);
+      showAuth();
     }
-  } else {
+  }else{
     if(invite)sessionStorage.setItem('pendingInvite',invite);
     showAuth();
   }
@@ -578,7 +589,7 @@ function showApp(){
   document.getElementById('screen-loading').classList.add('hidden');
   document.getElementById('screen-auth').classList.add('hidden');
   document.getElementById('screen-app').classList.remove('hidden');
-  const uname=profile?.username||'';
+  const uname=currentUser?.username||'';
   document.getElementById('headerUser').textContent=uname;
   document.getElementById('userAvatar').textContent=uname.charAt(0).toUpperCase()||'?';
   loadHeroStats();
@@ -613,43 +624,36 @@ async function doAuth(){
     if(pass!==confirm){showMsg(msg,'Las contraseñas no coinciden.','bad');return;}
   }
   btn.disabled=true;btn.textContent=currentAuthTab==='login'?'Entrando…':'Creando cuenta…';
-  const emailUser=username.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')||'user';
-  const email=emailUser+'@squidcup.com';
   try{
+    // Hash: sal fija + username en minúsculas + contraseña
+    const hash=await sha256('squid2026:'+username.toLowerCase()+':'+pass);
     if(currentAuthTab==='register'){
-      const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{username}}});
+      // Comprobar si el username ya existe (case-insensitive)
+      const {data:ex}=await sb.from('users').select('id').ilike('username',username).maybeSingle();
+      if(ex)throw new Error('Ese nombre de usuario ya está en uso.');
+      const {data,error}=await sb.from('users').insert([{username,password_hash:hash}]).select('id,username').single();
       if(error)throw error;
-      session=data.session;
-      if(!session)throw new Error('El usuario ya existe. Prueba con "Entrar".');
-    } else {
-      const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+      currentUser={id:data.id,username:data.username};
+    }else{
+      const {data,error}=await sb.from('users').select('id,username').ilike('username',username).eq('password_hash',hash).maybeSingle();
       if(error)throw error;
-      session=data.session;
+      if(!data)throw new Error('Usuario o contraseña incorrectos.');
+      currentUser={id:data.id,username:data.username};
     }
-    await loadProfile();
-    if(!profile){
-      await sb.from('profiles').upsert({id:session.user.id,username});
-      await loadProfile();
-    }
+    localStorage.setItem('jc_user',JSON.stringify(currentUser));
     await loadMySelections();
     const pending=sessionStorage.getItem('pendingInvite');
     if(pending){sessionStorage.removeItem('pendingInvite');try{await joinLeague(pending);}catch(e){}}
     showApp();
-  } catch(e){
-    let m=e.message||'Error desconocido.';
-    if(m.includes('Invalid login'))m='Usuario o contraseña incorrectos.';
-    if(m.includes('already registered'))m='Usuario ya registrado. Usa "Entrar".';
-    if(m.includes('weak_password'))m='La contraseña es demasiado débil.';
-    showMsg(msg,m,'bad');
+  }catch(e){
+    showMsg(msg,e.message||'Error desconocido.','bad');
   }
   btn.disabled=false;btn.textContent=currentAuthTab==='login'?'Entrar':'Crear cuenta';
 }
-async function logout(){await sb.auth.signOut();session=null;profile=null;mySelections={};pendingSel={};showAuth();}
-
-// ── PROFILE ──
-async function loadProfile(){
-  const {data}=await sb.from('profiles').select('*').eq('id',session.user.id).single();
-  profile=data;
+function logout(){
+  localStorage.removeItem('jc_user');
+  currentUser=null;mySelections={};pendingSel={};
+  showAuth();
 }
 
 // ── HERO STATS ──
@@ -659,11 +663,11 @@ async function loadHeroStats(){
   document.getElementById('heroligas').textContent='–';
   const [{data:lb},{data:lm}]=await Promise.all([
     sb.rpc('get_global_leaderboard'),
-    sb.from('league_members').select('id').eq('user_id',session.user.id)
+    sb.from('league_members').select('id').eq('user_id',currentUser.id)
   ]);
   if(lb){
-    const me=lb.find(r=>r.user_id===session.user.id);
-    const pos=lb.findIndex(r=>r.user_id===session.user.id)+1;
+    const me=lb.find(r=>r.user_id===currentUser.id);
+    const pos=lb.findIndex(r=>r.user_id===currentUser.id)+1;
     document.getElementById('heropts').textContent=me?me.points:0;
     document.getElementById('herorank').textContent=pos?'#'+pos:'#–';
   }
@@ -672,7 +676,7 @@ async function loadHeroStats(){
 
 // ── SELECTIONS ──
 async function loadMySelections(){
-  const {data}=await sb.from('selections').select('*').eq('user_id',session.user.id);
+  const {data}=await sb.from('selections').select('*').eq('user_id',currentUser.id);
   mySelections={};
   (data||[]).forEach(r=>{mySelections[r.block]={team1:r.team1,team2:r.team2};});
   pendingSel={};
@@ -682,7 +686,7 @@ async function saveSelection(block){
   const teams=pendingSel[block];
   if(!teams||teams.length!==2)return;
   const {error}=await sb.from('selections').upsert(
-    {user_id:session.user.id,block,team1:teams[0],team2:teams[1],updated_at:new Date().toISOString()},
+    {user_id:currentUser.id,block,team1:teams[0],team2:teams[1],updated_at:new Date().toISOString()},
     {onConflict:'user_id,block'}
   );
   if(error)throw error;
@@ -693,7 +697,7 @@ async function saveSelection(block){
 async function loadLeaguesList(){
   const list=document.getElementById('leagues-list');
   list.innerHTML='<div class="empty"><span class="ico">⏳</span></div>';
-  const {data}=await sb.from('league_members').select('league_id,leagues(id,name,invite_code,creator_id)').eq('user_id',session.user.id);
+  const {data}=await sb.from('league_members').select('league_id,leagues(id,name,invite_code,creator_id)').eq('user_id',currentUser.id);
   const leagues=(data||[]).map(r=>r.leagues).filter(Boolean);
   if(!leagues.length){
     list.innerHTML='<div class="empty"><span class="ico">🏟️</span>Aún no tienes ligas.<br><strong>Crea una</strong> o <strong>únete</strong> con el código de un amigo.</div>';
@@ -702,8 +706,8 @@ async function loadLeaguesList(){
   list.innerHTML='';
   for(const liga of leagues){
     const {data:lb}=await sb.rpc('get_leaderboard',{p_league_id:liga.id});
-    const me=lb?lb.find(r=>r.user_id===session.user.id):null;
-    const pos=lb?(lb.findIndex(r=>r.user_id===session.user.id)+1):0;
+    const me=lb?lb.find(r=>r.user_id===currentUser.id):null;
+    const pos=lb?(lb.findIndex(r=>r.user_id===currentUser.id)+1):0;
     const card=document.createElement('div');
     card.className='liga-card';
     card.innerHTML=`
@@ -723,7 +727,7 @@ async function loadLeaguesList(){
 async function joinLeague(code){
   const {data:league}=await sb.from('leagues').select('id').eq('invite_code',code.toUpperCase().trim()).single();
   if(!league)throw new Error('No se encontró ninguna liga con ese código.');
-  await sb.from('league_members').upsert({league_id:league.id,user_id:session.user.id},{onConflict:'league_id,user_id'});
+  await sb.from('league_members').upsert({league_id:league.id,user_id:currentUser.id},{onConflict:'league_id,user_id'});
   return league;
 }
 async function doJoin(){
@@ -736,7 +740,7 @@ async function doJoin(){
     loadLeaguesList();
     const {data:lgData}=await sb.from('leagues').select('*').eq('id',league.id).single();
     if(lgData)setTimeout(()=>openLeague(lgData),500);
-  } catch(e){showToast(e.message||'Error al unirse');}
+  }catch(e){showToast(e.message||'Error al unirse');}
 }
 
 // ── LEAGUE DETAIL ──
@@ -772,11 +776,10 @@ function buildPodium(lb){
   const order=top.length>=3?[top[1],top[0],top[2]]:top.length===2?[top[1],top[0]]:top.length===1?[top[0]]:[];
   const gClass=['g2','g1','g3'];
   const crowns=['','👑',''];
-  const posOf=(item)=>top.indexOf(item);
   return '<div class="podium">'+order.map((r,i)=>{
     const g=gClass[i];
     const crown=crowns[i];
-    const isMe=r.user_id===session.user.id;
+    const isMe=r.user_id===currentUser.id;
     return `<div class="podium-item${g==='g1'?' first':''}">
       <div class="podium-avatar ${g}">${crown?`<span class="podium-crown">${crown}</span>`:''}${r.username.charAt(0).toUpperCase()}</div>
       <div class="podium-name">${esc(r.username)}${isMe?' (tú)':''}</div>
@@ -793,7 +796,7 @@ function buildLbList(lb,startFrom=3){
   return '<div class="lb-list">'+rest.map(r=>{
     shown++;
     if(prev===null||r.points!==prev){pos=shown;prev=r.points;}
-    const isMe=r.user_id===session.user.id;
+    const isMe=r.user_id===currentUser.id;
     return `<div class="lb-row${isMe?' me':''}">
       <div class="lb-pos">${pos}</div>
       <div class="lb-avatar">${r.username.charAt(0).toUpperCase()}</div>
@@ -908,7 +911,7 @@ async function doSaveBlock(b,btn){
     if(blk){blk.classList.add('exp');renderBlockBody(b,true);}
     if(currentLeagueTab==='ranking')renderLeagueRanking();
     loadHeroStats();
-  } catch(e){
+  }catch(e){
     showMsg(msg,'⚠️ '+(e.message||'Error al guardar.'),'bad');
     btn.disabled=false;btn.textContent='Guardar bloque '+b;
   }
@@ -938,14 +941,14 @@ async function doCreateLeague(){
   const msg=document.getElementById('createMsg');
   if(!name){showMsg(msg,'Escribe un nombre para la liga.','bad');return;}
   try{
-    const {data,error}=await sb.from('leagues').insert({name,creator_id:session.user.id}).select().single();
+    const {data,error}=await sb.from('leagues').insert({name,creator_id:currentUser.id}).select().single();
     if(error)throw error;
     closeCreateModal();
     showToast('Liga "'+name+'" creada 🎉');
     loadLeaguesList();
     loadHeroStats();
     setTimeout(()=>openLeague(data),400);
-  } catch(e){showMsg(msg,e.message||'Error al crear la liga.','bad');}
+  }catch(e){showMsg(msg,e.message||'Error al crear la liga.','bad');}
 }
 
 // ── UTILS ──
